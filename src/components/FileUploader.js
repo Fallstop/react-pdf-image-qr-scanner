@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 /**
  * File Uploader Success callback.
@@ -22,8 +22,6 @@ import React, { useRef } from 'react';
   * @param {onFileSelectError} props.onFileSelectError The email of the user.
  */
 export default function FileUploader({ onFileSelectSuccess, onFileSelectError }) {
-    const fileInput = useRef(null);
-
     /**
      * 
      * @param {React.ChangeEvent<HTMLInputElement>} e

@@ -4,8 +4,8 @@ import {InvalidPDFException} from "pdfjs-dist/legacy/build/pdf.js";
 
 import './App.css';
 
-import PDFScanner from "./pdfScanner/pdfScanner";
-import FileUploader from "./pdfScanner/FileUploader";
+import ScanCanvasPDF from "./components/ScanCanvasPDF";
+import FileUploader from "./components/FileUploader";
 
 
 function App() {
@@ -34,10 +34,10 @@ function App() {
 	return (
 		<div className="App">
 			<header className="App-header">
-				<PDFScanner ref={pdfScannerRef}/>
+				<ScanCanvasPDF ref={pdfScannerRef}/>
 				<FileUploader onFileSelectError={(err) => { console.log(err); }} onFileSelectSuccess={(file)=>{setSelectedFile(file)}} />
 				<button onClick={scanPDF} disabled={selectedFile===null}>
-					Scan
+					Scan PDF
 				</button>
 				<span style={{height: "40vh", width: "50vw", fontSize: "0.8rem", overflowWrap: "anywhere", overflow: "auto", border: "white solid 1px"}}>{resultText}</span>
 			</header>
