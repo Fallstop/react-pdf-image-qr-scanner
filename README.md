@@ -1,1 +1,1 @@
-react-pdf-qr-scanner
+# React PDF QR Scanner
