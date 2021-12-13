@@ -1,0 +1,1 @@
+react-pdf-qr-scanner
