@@ -40,7 +40,7 @@ export default function FileUploader({ onFileSelectSuccess, onFileSelectError })
 
     return (
         <div className="file-uploader">
-            <input type="file" onChange={handleFileInput} />
+            <input type="file" onChange={handleFileInput} accept=".pdf"/>
         </div>
     );
 };

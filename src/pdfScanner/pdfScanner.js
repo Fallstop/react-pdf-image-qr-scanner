@@ -1,89 +1,72 @@
 
-import React, { useCallback, useEffect, useRef, useState, ReactDOM } from "react";
-
-import FileUploader from "./FileUploader";
-
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.js";
-import * as pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.entry";
+import React, {useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 
 import jsQR from "jsqr";
 
+import {GlobalWorkerOptions, getDocument} from "pdfjs-dist/legacy/build/pdf.js";
+import * as pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.entry";
 
-function Canvas({ pdfFile }) {
+
+/**
+ * FileUploader
+  * @param {object} props FileUploader Props.
+  * @param {File} props.selectedFile Selected PDF file to be scanned.
+ */
+const PDFScanner = forwardRef(({ }, ref) => {
+	GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
 	const canvasRef = useRef();
-	pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-	const [pdfRef, setPdfRef] = useState();
+	async function renderPDF(pdf) {
 
+		// Current implementation only renders first page.
+		const pageToRender = 1;
 
-	const renderPage = useCallback((pageNum, pdf = pdfRef) => {
-		console.log("renderPage", pageNum, pdf);
-		pdf && pdf.getPage(pageNum).then(async function (page) {
-			const viewport = page.getViewport({ scale: 1.5 });
-			const canvas = canvasRef.current;
-			
-			// A4 at 300dpi resolution
-			canvas.height = 3508;
-			canvas.width = 2480;
+		const page = await pdf.getPage(pageToRender)
 
-			const ctx = canvas.getContext('2d');
+		const viewport = page.getViewport({ scale: 1.5 });
 
-			const renderContext = {
-				canvasContext: ctx,
-				viewport: viewport
-			};
-			await page.render(renderContext).promise;
-			console.log(canvas);
-			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-			console.log("JSQR Data",jsQR(imageData.data, canvas.width, canvas.height));
-		});
-	}, [pdfRef]);
+		console.log(canvasRef)
+		const canvas = canvasRef.current;
 
-	useEffect(() => {
-	}, [pdfRef, renderPage]);
+		// Simulation of A4 at 300dpi resolution
+		canvas.height = 3508;
+		canvas.width = 2480;
 
-	useEffect(async() => {
-		let pdfArrayBuffer =await new Response(pdfFile).arrayBuffer();
-		console.log("pdfArrayBuffer",pdfArrayBuffer)
-
-		let typedArray = new Uint8Array(pdfArrayBuffer);
-
-		const loadingTask = pdfjsLib.getDocument(typedArray);
-		loadingTask.promise.then(loadedPdf => {
-			setPdfRef(loadedPdf);
-			renderPage(1, loadedPdf);
-			console.log("loaded");
-		}, function (reason) {
-			console.error(reason);
-		});
-	}, [pdfFile]);
-	return <canvas ref={canvasRef}></canvas>;
-}
-
-class PDFScanner extends React.Component {
-	constructor(props) {
-		super(props);
-
-
-		this.state = {
-			canvasElement: <div/>
+		const renderContext = {
+			canvasContext: canvas.getContext('2d'),
+			viewport: viewport
 		};
+		await page.render(renderContext).promise;
+		// PDF Page is now fully rendered to canvas, so we can now extract the QR code.
+		return extractQRCode(canvas);
 	}
 
-	loadCanvas(file) {
-		console.log("Adding to ");
-		this.setState({
-			canvasElement: <Canvas pdfFile={file} />
-		})
+	function extractQRCode(canvas) {
+		const ctx = canvas.getContext('2d');
+		const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		const qrData = jsQR(imageData.data, canvas.width, canvas.height);
+		return qrData?.data || null;
 	}
 
-	render() {
-		return (
-			<div>
-				<div style={{display: "none"}}>{this.state.canvasElement}</div>
-				<FileUploader onFileSelectError={(err) => { console.log(err); }} onFileSelectSuccess={(file)=>{this.loadCanvas(file)}} />
-			</div>
-		);
+	useImperativeHandle(ref, () => ({
+		async scanPDF(PDFFile) {
+			// async read of selected PDF file
+			let pdfArrayBuffer = await new Response(PDFFile).arrayBuffer();
+			let pdfTypedArray = new Uint8Array(pdfArrayBuffer);
+
+			// PDF.js is used to parse the PDF file from the typed array.
+			const loadedPDF = await getDocument(pdfTypedArray).promise;
+			
+			return await renderPDF(loadedPDF);
 		}
-}
+	}));
+
+
+	return (
+		<div style={{display: "none"}}>
+			<canvas ref={canvasRef}></canvas>
+		</div>
+	);
+});
 export default PDFScanner;
