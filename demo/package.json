@@ -1,7 +1,7 @@
 {
-  "name": "react-pdf-qr-scanner",
+  "name": "react-pdf-image-qr-reader-demo",
+  "license": "MIT",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "jsqr": "^1.4.0",
     "pdfjs-dist": "^2.10.377",
@@ -25,12 +25,14 @@
     "production": [
       ">0.2%",
       "not dead",
-      "not op_mini all"
+      "not op_mini all",
+      "ie >= 8"
     ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 safari version",
+      "ie >= 8"
     ]
   }
 }
