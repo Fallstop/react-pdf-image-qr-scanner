@@ -50,10 +50,10 @@ const StyledFileName = styled.span`
 export default function ImageUploader({ onFileSelectSuccess, onFileSelectError }) {
 
     // MIME Types to allow for upload.
-    const supportedFiles = ['application/pdf','image/png','image/jpeg','image/jpg'];
+    const supportedFiles = ['application/pdf','image/png','image/jpeg'];
     // Splitting the end of the string to get the file extension is not the best way to do this.
     // Will break for MIME's like SVG 'image/svg+xml'.
-    const supportedFileEnds = supportedFiles.map(file => "."+file.split('/')[1]).join(',');
+    const supportedFileEnds = supportedFiles.map(file => file.split('/')[1]).join(', ');
 
     const [fileName, setFileName] = useState("");
 
@@ -74,10 +74,10 @@ export default function ImageUploader({ onFileSelectSuccess, onFileSelectError }
 
     return (
         <div className="file-uploader">
-            <StyledFileName>{fileName}{fileName==="" && `Supports: ${supportedFiles.map(file => file.split('/')[1]).join(', ')}`}</StyledFileName>
+            <StyledFileName>{fileName}{fileName==="" && `Supports: ${supportedFileEnds}`}</StyledFileName>
 
             <StyledFileUploader>
-                <input style={{display: "none"}} type="file" onChange={handleFileInput} accept={supportedFileEnds}/>
+                <input style={{display: "none"}} type="file" onChange={handleFileInput} accept={supportedFiles.join(",")}/>
                 Choose File
             </StyledFileUploader>
         </div>

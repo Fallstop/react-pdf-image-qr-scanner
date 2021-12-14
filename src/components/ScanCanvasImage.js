@@ -61,9 +61,9 @@ const ScanCanvasPDF = forwardRef((_, ref) => {
 
 		const canvas = canvasRef.current;
 
-		// Simulation of A4 at 300dpi resolution
-		canvas.height = 3508;
-		canvas.width = 2480;
+		// Simulation of A4 at 150dpi resolution
+		canvas.height = 1754;
+		canvas.width = 1240;
 
 		const renderContext = {
 			canvasContext: canvas.getContext('2d'),
