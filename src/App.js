@@ -5,8 +5,8 @@ import styled from 'styled-components';
 
 import './App.css';
 
-import ScanCanvasPDF from "./components/ScanCanvasPDF";
-import FileUploader from "./components/FileUploader";
+import ScanCanvasImage from "./components/ScanCanvasImage";
+import ImageUploader from "./components/FileUploader";
 
 const ScanButton = styled.button`
 	background-color: #4CAF50;
@@ -30,15 +30,15 @@ const ScanButton = styled.button`
 
 
 function App() {
-	const pdfScannerRef = useRef();
+	const canvasScannerRef = useRef();
 
 	const [resultText, setResultText] = useState("");
 	const [selectedFile, setSelectedFile] = useState(null);
 
-	async function scanPDF() {
+	async function scanFile() {
 		setResultText("");
 		try {
-			const qrCode = await pdfScannerRef.current.scanPDF(selectedFile);
+			const qrCode = await canvasScannerRef.current.scanFile(selectedFile);
 			// It returns null if no QR code is found
 			setResultText(qrCode || "No QR code found");
 		} catch (e) {
@@ -46,7 +46,10 @@ function App() {
 			// Example Error Handling
 			if (e instanceof InvalidPDFException) {
 				setResultText("Invalid PDF");
+			} else if (e instanceof Event) {
+				setResultText("Invalid Image");
 			} else {
+				console.log(e)
 				setResultText("Unknown error");
 			}
 		}
@@ -56,12 +59,12 @@ function App() {
 	return (
 		<div className="App">
 			<header className="App-header">
-				React PDF QR Scanner
+				React File QR Scanner
 			</header>
-			<ScanCanvasPDF ref={pdfScannerRef}/>
-				<FileUploader onFileSelectError={(err) => { console.log(err); }} onFileSelectSuccess={(file)=>{setSelectedFile(file)}} />
-				<ScanButton onClick={scanPDF} disabled={selectedFile===null}>
-					Scan PDF
+			<ScanCanvasImage ref={canvasScannerRef}/>
+				<ImageUploader onFileSelectError={(err) => { console.log(err); }} onFileSelectSuccess={(file)=>{setSelectedFile(file)}} />
+				<ScanButton onClick={scanFile} disabled={selectedFile===null}>
+					Scan File
 				</ScanButton>
 				<span style={{height: "40vh", width: "50vw", fontSize: "0.8rem", overflowWrap: "anywhere", overflow: "auto", border: "white solid 1px"}}>{resultText}</span>
 

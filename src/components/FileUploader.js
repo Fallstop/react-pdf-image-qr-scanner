@@ -27,14 +27,14 @@ const StyledFileName = styled.span`
 `;
 
 /**
- * File Uploader Success callback.
+ * ImageUploader Success callback.
  *
  * @callback onFileSelectSuccess
- * @param {File} file - The PDF file.
+ * @param {File} file - The image file.
  */
 
 /**
- * File Uploader Error callback.
+ * ImageUploader Error callback.
  *
  * @callback onFileSelectError
  * @param {object} error - Error Object.
@@ -42,12 +42,19 @@ const StyledFileName = styled.span`
  */
 
 /**
- * FileUploader
-  * @param {object} props FileUploader Props.
+ * ImageUploader
+  * @param {object} props ImageUploader Props.
   * @param {onFileSelectSuccess} props.onFileSelectSuccess Success Handler.
   * @param {onFileSelectError} props.onFileSelectError The email of the user.
  */
-export default function FileUploader({ onFileSelectSuccess, onFileSelectError }) {
+export default function ImageUploader({ onFileSelectSuccess, onFileSelectError }) {
+
+    // MIME Types to allow for upload.
+    const supportedFiles = ['application/pdf','image/png','image/jpeg','image/jpg'];
+    // Splitting the end of the string to get the file extension is not the best way to do this.
+    // Will break for MIME's like SVG 'image/svg+xml'.
+    const supportedFileEnds = supportedFiles.map(file => "."+file.split('/')[1]).join(',');
+
     const [fileName, setFileName] = useState("");
 
     /**
@@ -55,23 +62,23 @@ export default function FileUploader({ onFileSelectSuccess, onFileSelectError })
      * @param {React.ChangeEvent<HTMLInputElement>} e
      */
     const handleFileInput = (e) => {
-        // handle validations
+        // Makes sure it's the correct file type.
         const file = e.target.files[0];
-        if (file.type !== "application/pdf") {
-            onFileSelectError({ error: "File must be a PDF" });
-        } else {
+        if (supportedFiles.includes(file.type)) {
             setFileName(file.name);
             onFileSelectSuccess(file);
+        } else {
+            onFileSelectError({ error: "File must be a PDF" });
         }
     };
 
     return (
         <div className="file-uploader">
-            <StyledFileName>{fileName}</StyledFileName>
+            <StyledFileName>{fileName}{fileName==="" && `Supports: ${supportedFiles.map(file => file.split('/')[1]).join(', ')}`}</StyledFileName>
 
             <StyledFileUploader>
-                <input style={{display: "none"}} type="file" onChange={handleFileInput} accept=".pdf"/>
-                Choose PDF
+                <input style={{display: "none"}} type="file" onChange={handleFileInput} accept={supportedFileEnds}/>
+                Choose File
             </StyledFileUploader>
         </div>
     );
