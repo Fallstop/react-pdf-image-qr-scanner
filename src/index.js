@@ -1,48 +1,49 @@
-import {useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 
-import jsQR from "jsqr";
+import jsQR from 'jsqr';
 
-import {GlobalWorkerOptions, getDocument} from "pdfjs-dist/legacy/build/pdf.js";
-import * as pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.entry";
-
+import {
+	GlobalWorkerOptions,
+	getDocument
+} from 'pdfjs-dist/legacy/build/pdf.js';
+import * as pdfjsWorker from 'pdfjs-dist/legacy/build/pdf.worker.entry';
 
 /**
-  * Scans a PDF file and returns the QR codes found in the file.
-  * Start a scan using the `scanPDF` method.
+ * Scans a PDF file and returns the QR codes found in the file.
+ * Start a scan using the `scanPDF` method.
  */
-const ScanCanvasPDF = forwardRef((_, ref) => {
+export default forwardRef((_, ref) => {
 	GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 	const canvasRef = useRef();
 
 	useImperativeHandle(ref, () => ({
-
 		/**
 		 * Scan PDF file and return QR code data.
-		 * 
-		 * @param {File} FileHandle - File handle of the PDF/Image file to scan. 
+		 *
+		 * @param {File} FileHandle - File handle of the PDF/Image file to scan.
 		 * @returns {Promise<string?>} QR Code Data.
 		 */
 
 		async scanFile(FileHandle) {
 			// async read of selected PDF file
-			let uploadedFile = new Response(FileHandle);
+			const uploadedFile = new Response(FileHandle);
 
-			if (FileHandle.type === "application/pdf") {
+			if (FileHandle.type === 'application/pdf') {
 				// PDF.js is used to parse the PDF file from the typed array.
-				const pdfTypedArray = new Uint8Array(await uploadedFile.arrayBuffer());
+				const pdfTypedArray = new Uint8Array(
+					await uploadedFile.arrayBuffer()
+				);
 				const loadedPDF = await getDocument(pdfTypedArray).promise;
-				
+
 				return await renderPDF(loadedPDF);
 			} else {
 				// It's an image, so we use the canvas to render the image.
 				const imageBlob = await uploadedFile.blob();
 				return await renderImage(imageBlob);
 			}
-
 		}
 	}));
-
 
 	/**
 	 * Render PDF to canvas, and scans the QR code using the Canvas data.
@@ -51,35 +52,42 @@ const ScanCanvasPDF = forwardRef((_, ref) => {
 	 */
 
 	async function renderPDF(pdfTypedArray) {
+		let qrResult = null;
+		for (
+			let pageToRender = 1;
+			pageToRender <= pdfTypedArray.numPages;
+			pageToRender++
+		) {
+			const page = await pdfTypedArray.getPage(pageToRender);
 
-		// Current implementation only renders first page.
-		const pageToRender = 1;
+			const viewport = page.getViewport({ scale: 1.5 });
 
-		const page = await pdfTypedArray.getPage(pageToRender)
+			const canvas = canvasRef.current;
 
-		const viewport = page.getViewport({ scale: 1.5 });
+			// Simulation of A4 at 150dpi resolution
+			canvas.height = 1754;
+			canvas.width = 1240;
 
-		const canvas = canvasRef.current;
+			const renderContext = {
+				canvasContext: canvas.getContext('2d'),
+				viewport: viewport
+			};
 
-		// Simulation of A4 at 150dpi resolution
-		canvas.height = 1754;
-		canvas.width = 1240;
+			await page.render(renderContext).promise;
 
-		const renderContext = {
-			canvasContext: canvas.getContext('2d'),
-			viewport: viewport
-		};
-
-		await page.render(renderContext).promise;
-
-		// PDF Page is now fully rendered to canvas, so we can now extract the QR code.
-		return extractQRCode(canvas);
+			// PDF Page is now fully rendered to canvas, so we can now extract the QR code.
+			qrResult = extractQRCode(canvas);
+			if (qrResult !== null) {
+				return qrResult;
+			}
+		}
+		return null;
 	}
-	
+
 	/**
 	 * Wrapper for new Image() to load image from blob.
 	 * Needed to make it compatible with Async/Await.
-	 * @param {Blob} imageBlob 
+	 * @param {Blob} imageBlob
 	 * @returns {Promise<Image>}
 	 */
 
@@ -89,9 +97,8 @@ const ScanCanvasPDF = forwardRef((_, ref) => {
 			image.onload = () => resolve(image);
 			image.onerror = reject;
 			image.src = URL.createObjectURL(imageBlob);
-		})
+		});
 	}
-		
 
 	/**
 	 * Takes image file, creates Image, then renders it on a canvas, and finally extracts the QRCode data
@@ -99,7 +106,7 @@ const ScanCanvasPDF = forwardRef((_, ref) => {
 	 * @return {string?} QR code data.
 	 */
 	async function renderImage(imageBlob) {
-		let image = await generateImageObject(imageBlob);
+		const image = await generateImageObject(imageBlob);
 
 		const canvas = canvasRef.current;
 		canvas.height = image.height;
@@ -125,10 +132,8 @@ const ScanCanvasPDF = forwardRef((_, ref) => {
 	}
 
 	return (
-		<div style={{display: "none"}}>
-			<canvas ref={canvasRef}></canvas>
+		<div style={{ display: 'none' }}>
+			<canvas ref={canvasRef} />
 		</div>
 	);
 });
-
-export default ScanCanvasPDF;

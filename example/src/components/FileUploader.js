@@ -58,7 +58,7 @@ export default function ImageUploader({ onFileSelectSuccess, onFileSelectError }
     const [fileName, setFileName] = useState("");
 
     /**
-     * 
+     *
      * @param {React.ChangeEvent<HTMLInputElement>} e
      */
     const handleFileInput = (e) => {
@@ -68,7 +68,7 @@ export default function ImageUploader({ onFileSelectSuccess, onFileSelectError }
             setFileName(file.name);
             onFileSelectSuccess(file);
         } else {
-            onFileSelectError({ error: "File must be a PDF" });
+            onFileSelectError({ error: "File must be a PDF/Image" });
         }
     };
 

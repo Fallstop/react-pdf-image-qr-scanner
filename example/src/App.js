@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import {InvalidPDFException} from "pdfjs-dist/legacy/build/pdf.js";
 
 import './App.css';
 
-import ScanCanvasImage from "./components/ScanCanvasImage";
+import ScanCanvasQR from 'react-pdf-image-qr-scanner';
 import ImageUploader from "./components/FileUploader";
 
 function App() {
@@ -20,7 +19,7 @@ function App() {
 		} catch (e) {
 
 			// Example Error Handling
-			if (e instanceof InvalidPDFException) {
+			if (e?.name==="InvalidPDFException") {
 				setResultText("Invalid PDF");
 			} else if (e instanceof Event) {
 				setResultText("Invalid Image");
@@ -37,8 +36,8 @@ function App() {
 			<header className="App-header">
 				React File QR Scanner
 			</header>
-			<ScanCanvasImage ref={canvasScannerRef}/>
-				<ImageUploader onFileSelectError={(err) => { console.log(err); }} onFileSelectSuccess={(file)=>{scanFile(file)}} />
+			<ScanCanvasQR ref={canvasScannerRef}/>
+				<ImageUploader onFileSelectError={(err) => { console.log(err);setResultText(err.error) }} onFileSelectSuccess={(file)=>{scanFile(file)}} />
 				<span style={{height: "40vh", width: "50vw", fontSize: "0.8rem", overflowWrap: "anywhere", overflow: "auto", border: "white solid 1px"}}>{resultText}</span>
 
 		</div>
