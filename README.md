@@ -2,19 +2,25 @@
 
 > This is a component to scan user uploaded PDF&#x27;s and Images for QR-Codes
 
-[![NPM](https://img.shields.io/npm/v/react-pdf-image-qr-scanner.svg)](https://www.npmjs.com/package/react-pdf-image-qr-scanner) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/react-pdf-image-qr-scanner.svg?style=flat-square)](https://www.npmjs.com/package/react-pdf-image-qr-scanner)
 
-## Demo
+<h2 align="center">
+	Demo
+</h2>
+
 There is a demo available [here](https://react-pdf-qr-scanner.pages.dev/). The source of the demo is in the `/example` folder.
 
-## Install
+<h2 align="center">
+	Install
+</h2>
 
 ```bash
 yarn add react-pdf-image-qr-scanner
 npm install --save react-pdf-image-qr-scanner
 ```
-
-## Usage
+<h2 align="center">
+	Usage
+</h2>
 
 ```jsx
 import React from 'react';
@@ -53,6 +59,11 @@ function App() {
 }
 ```
 
-## License
-
-MIT © [Fallstop](https://github.com/Fallstop)
+<h2 align="center">
+	Supported By
+</h2>
+<p align="center">
+	<a href="https://www.provida.nz/">
+		<img width="250" src="./ProvidaKeaLogo.png"></img>
+	</a>
+</p>
