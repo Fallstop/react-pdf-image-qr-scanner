@@ -60,13 +60,16 @@ export default forwardRef((_, ref) => {
 		) {
 			const page = await pdfTypedArray.getPage(pageToRender);
 
-			const viewport = page.getViewport({ scale: 1.5 });
-
 			const canvas = canvasRef.current;
+			// Simulation of A4 at 300dpi resolution
+			canvas.height = 3508;
+			canvas.width = 2480;
 
-			// Simulation of A4 at 150dpi resolution
-			canvas.height = 1754;
-			canvas.width = 1240;
+			const unscaledViewport = page.getViewport({scale: 1});
+
+			const scale = Math.min((canvas.height / unscaledViewport.height), (canvas.width / unscaledViewport.width));
+
+			const viewport = page.getViewport({ scale });
 
 			const renderContext = {
 				canvasContext: canvas.getContext('2d'),
@@ -109,13 +112,21 @@ export default forwardRef((_, ref) => {
 		const image = await generateImageObject(imageBlob);
 
 		const canvas = canvasRef.current;
-		canvas.height = image.height;
-		canvas.width = image.width;
 
-		const context = canvas.getContext('2d');
-		context.drawImage(image, 0, 0);
+		// Try scanning for multiple scales, helps jsQR to find the QR code.
+		for (let scale of [0.5,1,0.25]) {
+			canvas.height = image.height * scale;
+			canvas.width = image.width * scale;
 
-		return extractQRCode(canvas);
+			const context = canvas.getContext('2d');
+			context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+			const result = extractQRCode(canvas);
+			if (result) {
+				return result;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -127,7 +138,9 @@ export default forwardRef((_, ref) => {
 	function extractQRCode(canvas) {
 		const ctx = canvas.getContext('2d');
 		const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		const qrData = jsQR(imageData.data, canvas.width, canvas.height);
+		const qrData = jsQR(imageData.data, canvas.width, canvas.height, {
+			inversionAttempts: 'attemptBoth'
+		});
 		return qrData?.data || null;
 	}
 
