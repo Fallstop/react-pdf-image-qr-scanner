@@ -1,4 +1,15 @@
-# react-pdf-image-qr-scanner
+## react-pdf-image-qr-scanner
+
+
+# **Moved To [`openhealthnz-credentials/pdf-image-qr-scanner`](https://github.com/openhealthnz-credentials/pdf-image-qr-scanner)**
+
+It was made framework agnostic, and moved to a new organisation. The new version has massive breaking changes, but has much better scanning abilites.
+
+
+<hr/>
+<br/><br/><br/><br/>
+
+
 
 > This is a component to scan user uploaded PDF&#x27;s and Images for QR-Codes
 
@@ -8,7 +19,7 @@
 	Demo
 </h2>
 
-There is a demo available [here](https://react-pdf-qr-scanner.pages.dev/). The source of the demo is in the `/example` folder.
+There is a demo available [here](https://react-pdf-image-qr-scanner.pages.dev/). The source of the demo is in the `/example` folder.
 
 <h2 align="center">
 	Install
@@ -58,12 +69,3 @@ function App() {
 	);
 }
 ```
-
-<h2 align="center">
-	Supported By
-</h2>
-<p align="center">
-	<a href="https://www.provida.nz/">
-		<img width="250" src="./ProvidaKeaLogo.png"></img>
-	</a>
-</p>
